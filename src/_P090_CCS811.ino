@@ -70,7 +70,7 @@
 #define P090_READ_INTERVAL            PCONFIG_LONG(0)
 
 
-boolean Plugin_090(byte function, struct EventStruct *event, String& string)
+boolean Plugin_090(uint8_t function, struct EventStruct *event, String& string)
 {
   boolean success = false;
 
@@ -104,12 +104,17 @@ boolean Plugin_090(byte function, struct EventStruct *event, String& string)
       break;
     }
 
+    case PLUGIN_I2C_HAS_ADDRESS:
     case PLUGIN_WEBFORM_SHOW_I2C_PARAMS:
     {
+      const int i2cAddressValues[] = { 0x5A, 0x5B };
       // I2C address choice
-      const __FlashStringHelper * options[2]      = { F("0x5A (ADDR pin is LOW)"), F("0x5B (ADDR pin is HIGH)") };
-      int    optionValues[2] = { 0x5A, 0x5B };
-      addFormSelector(F("I2C Address"), F("i2c_addr"), 2, options, optionValues, P090_I2C_ADDR);
+      if (function == PLUGIN_WEBFORM_SHOW_I2C_PARAMS) {
+        const __FlashStringHelper * options[2] = { F("0x5A (ADDR pin is LOW)"), F("0x5B (ADDR pin is HIGH)") };
+        addFormSelector(F("I2C Address"), F("i2c_addr"), 2, options, i2cAddressValues, P090_I2C_ADDR);
+      } else {
+        success = intArrayContains(2, i2cAddressValues, event->Par1);
+      }
       break;
     }
 
@@ -279,8 +284,8 @@ boolean Plugin_090(byte function, struct EventStruct *event, String& string)
       if (P090_COMPENSATE_ENABLE)
       {
         // we're checking a var from another task, so calculate that basevar
-        byte  TaskIndex    = P090_TEMPERATURE_TASK_INDEX;
-        byte  BaseVarIndex = TaskIndex * VARS_PER_TASK + P090_TEMPERATURE_TASK_VALUE;
+        uint8_t  TaskIndex    = P090_TEMPERATURE_TASK_INDEX;
+        uint8_t  BaseVarIndex = TaskIndex * VARS_PER_TASK + P090_TEMPERATURE_TASK_VALUE;
         float temperature  = UserVar[BaseVarIndex]; // in degrees C
         // convert to celsius if required
         int temperature_in_fahrenheit = P090_TEMPERATURE_SCALE;
@@ -292,8 +297,8 @@ boolean Plugin_090(byte function, struct EventStruct *event, String& string)
           temp        =  F("F");
         }
 
-        byte  TaskIndex2    = P090_HUMIDITY_TASK_INDEX;
-        byte  BaseVarIndex2 = TaskIndex2 * VARS_PER_TASK + P090_HUMIDITY_TASK_VALUE;
+        uint8_t  TaskIndex2    = P090_HUMIDITY_TASK_INDEX;
+        uint8_t  BaseVarIndex2 = TaskIndex2 * VARS_PER_TASK + P090_HUMIDITY_TASK_VALUE;
         float humidity      = UserVar[BaseVarIndex2]; // in % relative
 
       #ifndef BUILD_NO_DEBUG

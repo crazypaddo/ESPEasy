@@ -43,6 +43,8 @@ const __FlashStringHelper * getLabel(LabelType::Enum label) {
     case LabelType::HOST_NAME:              return F("Hostname");
 
     case LabelType::LOCAL_TIME:             return F("Local Time");
+    case LabelType::TIME_SOURCE:            return F("Time Source");
+    case LabelType::TIME_WANDER:            return F("Time Wander");
     case LabelType::UPTIME:                 return F("Uptime");
     case LabelType::LOAD_PCT:               return F("Load");
     case LabelType::LOOP_COUNT:             return F("Load LC");
@@ -53,6 +55,7 @@ const __FlashStringHelper * getLabel(LabelType::Enum label) {
     case LabelType::WIFI_SEND_AT_MAX_TX_PWR:return F("Send With Max TX Power");
     case LabelType::WIFI_NR_EXTRA_SCANS:    return F("Extra WiFi scan loops");
     case LabelType::WIFI_PERIODICAL_SCAN:   return F("Periodical Scan WiFi");
+    case LabelType::WIFI_USE_LAST_CONN_FROM_RTC: return F("Use Last Connected AP from RTC");
 
     case LabelType::FREE_MEM:               return F("Free RAM");
     case LabelType::FREE_STACK:             return F("Free Stack");
@@ -73,6 +76,10 @@ const __FlashStringHelper * getLabel(LabelType::Enum label) {
     case LabelType::PSRAM_MAX_FREE_BLOCK:   return F("PSRAM Max Free Block");
     #endif // ESP32_ENABLE_PSRAM
 #endif // ifdef ESP32
+
+    case LabelType::JSON_BOOL_QUOTES:       return F("JSON bool output without quotes");
+    case LabelType::ENABLE_TIMING_STATISTICS:  return F("Collect Timing Statistics");
+    case LabelType::TASKVALUESET_ALL_PLUGINS:  return F("Allow TaskValueSet on all plugins");
 
     case LabelType::BOOT_TYPE:              return F("Last Boot Cause");
     case LabelType::BOOT_COUNT:             return F("Boot Count");
@@ -205,6 +212,8 @@ String getValue(LabelType::Enum label) {
 
 
     case LabelType::LOCAL_TIME:             return node_time.getDateTimeString('-', ':', ' ');
+    case LabelType::TIME_SOURCE:            return toString(node_time.timeSource);
+    case LabelType::TIME_WANDER:            return String(node_time.timeWander, 3);
     case LabelType::UPTIME:                 return String(getUptimeMinutes());
     case LabelType::LOAD_PCT:               return String(getCPUload());
     case LabelType::LOOP_COUNT:             return String(getLoopCountPerSec());
@@ -215,6 +224,7 @@ String getValue(LabelType::Enum label) {
     case LabelType::WIFI_SEND_AT_MAX_TX_PWR:return jsonBool(Settings.UseMaxTXpowerForSending());
     case LabelType::WIFI_NR_EXTRA_SCANS:    return String(Settings.NumberExtraWiFiScans);
     case LabelType::WIFI_PERIODICAL_SCAN:   return jsonBool(Settings.PeriodicalScanWiFi());
+    case LabelType::WIFI_USE_LAST_CONN_FROM_RTC: return jsonBool(Settings.UseLastWiFiFromRTC());
 
     case LabelType::FREE_MEM:               return String(ESP.getFreeHeap());
     case LabelType::FREE_STACK:             return String(getCurrentFreeStack());
@@ -238,6 +248,10 @@ String getValue(LabelType::Enum label) {
     #endif // ESP32_ENABLE_PSRAM
 #endif // ifdef ESP32
 
+
+    case LabelType::JSON_BOOL_QUOTES:       return jsonBool(Settings.JSONBoolWithoutQuotes());
+    case LabelType::ENABLE_TIMING_STATISTICS:  return jsonBool(Settings.EnableTimingStats());
+    case LabelType::TASKVALUESET_ALL_PLUGINS:  return jsonBool(Settings.AllowTaskValueSetAllPlugins());
 
     case LabelType::BOOT_TYPE:              return getLastBootCauseString();
     case LabelType::BOOT_COUNT:             break;
@@ -337,7 +351,7 @@ String getValue(LabelType::Enum label) {
                                                           getValue(LabelType::ETH_IP_SUBNET));
     case LabelType::ETH_IP_GATEWAY:         return NetworkGatewayIP().toString();
     case LabelType::ETH_IP_DNS:             return NetworkDnsIP(0).toString();
-    case LabelType::ETH_MAC:                return NetworkMacAddress();
+    case LabelType::ETH_MAC:                return NetworkMacAddress().toString();
     case LabelType::ETH_DUPLEX:             return EthLinkUp() ? (EthFullDuplex() ? F("Full Duplex") : F("Half Duplex")) : F("Link Down");
     case LabelType::ETH_SPEED:              return EthLinkUp() ? getEthSpeed() : F("Link Down");
     case LabelType::ETH_STATE:              return EthLinkUp() ? F("Link Up") : F("Link Down");
@@ -351,7 +365,7 @@ String getValue(LabelType::Enum label) {
     case LabelType::SUNSET_S:               return String(node_time.sunSet.tm_hour * 3600 + node_time.sunSet.tm_min * 60 + node_time.sunSet.tm_sec);
     case LabelType::SUNRISE_M:              return String(node_time.sunRise.tm_hour * 60 + node_time.sunRise.tm_min);
     case LabelType::SUNSET_M:               return String(node_time.sunSet.tm_hour * 60 + node_time.sunSet.tm_min);
-    case LabelType::ISNTP:                  return jsonBool(Settings.UseNTP);
+    case LabelType::ISNTP:                  return jsonBool(Settings.UseNTP());
     case LabelType::UPTIME_MS:              return ull2String(getMicros64() / 1000);
     case LabelType::TIMEZONE_OFFSET:        return String(Settings.TimeZone);
     case LabelType::LATITUDE:               return String(Settings.Latitude);
