@@ -618,6 +618,7 @@ To create/register a plugin, you have to :
     #define USES_P036   // FrameOLED
     #define USES_P027   // INA219
     #define USES_P028   // BME280
+    #define USES_P220   // Adafruit MCP4725
 #endif
 
 #ifdef PLUGIN_SET_TEST_ESP32
@@ -1010,6 +1011,7 @@ To create/register a plugin, you have to :
     #define USES_P063   // TTP229_KeyPad
     #define USES_P073   // 7DG
     #define USES_P079   // Wemos Motoshield
+    #define USES_P220   // Adafruit MCP4725
 #endif
 
 
@@ -1302,6 +1304,7 @@ To create/register a plugin, you have to :
 	#define USES_P211	// MPU6050
 	#define USES_P212	// MY9291
 	#define USES_P213	// VEML6070
+  #define USES_P220 // MCP4725
 #endif
 
 
